@@ -10,21 +10,57 @@ const GET_USERS = gql`
   }
 `;
 
-const App = () => {
-  const { loading, error, data } = useQuery(GET_USERS);
-  console.log(data, "dfd");
+const GET_USER_BY_ID = gql`
+  query GetUserById($getUserByIdId: ID!) {
+    getUserById(id: $getUserByIdId) {
+      name
+      age
+      id
+    }
+  }
+`;
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+const App = () => {
+  const {
+    loading: getUsersLoading,
+    error: getUsersError,
+    data: getUsersData,
+  } = useQuery(GET_USERS);
+
+  const {
+    loading: getUserByIdLoading,
+    error: getUserByIdError,
+    data: getUserByIdData,
+  } = useQuery(GET_USER_BY_ID, {
+    variables: { getUserByIdId: "1" },
+    skip: !getUsersData, // Skip if getUsersData is not available
+  });
+
+  console.log(getUsersData, "dfd");
+
+  if (getUsersLoading) return <p>Loading...</p>;
+  if (getUsersError) return <p>Error: {getUsersError.message}</p>;
 
   return (
     <div>
       <h1>User List</h1>
-      {data.getUsers.map((user) => (
+      {getUsersData.getUsers.map((user) => (
         <div key={user.id}>
           <h2>{user.name}</h2>
+          <p>Age: {user.age}</p>
+          <p>ID: {user.id}</p>
         </div>
       ))}
+      {getUserByIdLoading && <p>Loading user by ID...</p>}
+      {getUserByIdError && <p>Error: {getUserByIdError.message}</p>}
+      {getUserByIdData && (
+        <div>
+          <h2>User by ID 1</h2>
+          <p>Name: {getUserByIdData.getUserById.name}</p>
+          <p>Age: {getUserByIdData.getUserById.age}</p>
+          <p>ID: {getUserByIdData.getUserById.id}</p>
+        </div>
+      )}
     </div>
   );
 };
