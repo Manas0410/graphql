@@ -20,6 +20,14 @@ const GET_USER_BY_ID = gql`
   }
 `;
 
+const CREATE_USER = gql`
+  mutation CreateUser($name: String!, $age: Int!, $isMarried: Boolean!) {
+    createUser(name: $name, age: $age, isMarried: $isMarried) {
+      name
+    }
+  }
+`;
+
 const App = () => {
   const {
     loading: getUsersLoading,
@@ -36,6 +44,8 @@ const App = () => {
     skip: !getUsersData, // Skip if getUsersData is not available
   });
 
+  const [createUser] = useMutation(CREATE_USER);
+
   console.log(getUsersData, "dfd");
 
   if (getUsersLoading) return <p>Loading...</p>;
@@ -43,6 +53,17 @@ const App = () => {
 
   return (
     <div>
+      <div>
+        <button
+          onClick={() =>
+            createUser({
+              variables: { name: "Arjun", age: 21, isMarried: false },
+            })
+          }
+        >
+          Create User
+        </button>
+      </div>
       <h1>User List</h1>
       {getUsersData.getUsers.map((user) => (
         <div key={user.id}>
